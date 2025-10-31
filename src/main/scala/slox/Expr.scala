@@ -9,6 +9,9 @@ class AssignExpr(val name: Token, val value: Expr) extends Expr:
 class BinaryExpr(val left: Expr, val operator: Token, val right: Expr) extends Expr:
   def accept[R](visitor: ExprVisitor[R]): R = visitor.visitBinary(this);
 
+class CallExpr(val callee: Expr, val arguments: Array[Expr], val closingParen: Token) extends Expr:
+  def accept[R](visitor: ExprVisitor[R]): R = visitor.visitCall(this);
+
 class GroupingExpr(val expr: Expr) extends Expr:
   def accept[R](visitor: ExprVisitor[R]): R = visitor.visitGrouping(this);
 
@@ -27,6 +30,7 @@ class VariableExpr(val name: Token) extends Expr:
 trait ExprVisitor[R]:
   def visitAssign(expr: AssignExpr): R;
   def visitBinary(expr: BinaryExpr): R;
+  def visitCall(expr: CallExpr): R;
   def visitGrouping(expr: GroupingExpr): R;
   def visitLiteral(expr: LiteralExpr): R;
   def visitLogical(expr: LogicalExpr): R;
@@ -38,6 +42,12 @@ sealed abstract class Stmt:
 
 class BlockStmt(val stmts: Array[Stmt]) extends Stmt:
   def accept[R](visitor: StmtVisitor[R]): R = visitor.visitBlock(this);
+
+class FunctionStmt(val name: Token, val params: Array[Token], val body: Array[Stmt]) extends Stmt:
+  def accept[R](visitor: StmtVisitor[R]): R = visitor.visitFunction(this);
+
+class ReturnStmt(val keyword: Token, val value: Expr) extends Stmt:
+  def accept[R](visitor: StmtVisitor[R]): R = visitor.visitReturn(this);
 
 class IfStmt(val condition: Expr, val thenBranch: Stmt, val elseBranch: Stmt) extends Stmt:
   def accept[R](visitor: StmtVisitor[R]): R = visitor.visitIf(this);
@@ -56,6 +66,8 @@ class WhileStmt(val condition: Expr, val body: Stmt) extends Stmt:
 
 trait StmtVisitor[R]:
   def visitBlock(stmt: BlockStmt): R;
+  def visitFunction(stmt: FunctionStmt): R;
+  def visitReturn(stmt: ReturnStmt): R;
   def visitIf(stmt: IfStmt): R;
   def visitExpression(stmt: ExpressionStmt): R;
   def visitPrint(stmt: PrintStmt): R;

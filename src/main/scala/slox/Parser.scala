@@ -1,6 +1,7 @@
 package slox;
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.Breaks._
 
 import slox.Lox.report
 
@@ -20,6 +21,7 @@ class Parser(tokens: Array[Token]):
   
   def declaration(): Stmt = {
     try
+      if matches(TokenType.Fun) then return function("function");
       if matches(TokenType.Var) then return varDeclaration();
 
       statement()
@@ -41,6 +43,8 @@ class Parser(tokens: Array[Token]):
       whileStatement()
     else if matches(TokenType.For) then
       forStatement()
+    else if matches(TokenType.Return) then
+      returnStatement()
     else
       expressionStatement()
   }
@@ -103,6 +107,15 @@ class Parser(tokens: Array[Token]):
     PrintStmt(value)
   }
 
+  def returnStatement(): Stmt = {
+    val keyword = previous();
+    var value: Expr = null;
+    if !check(TokenType.Semicolon) then value = expression();
+
+    consume(TokenType.Semicolon, "Expect ';' after return value.");
+    ReturnStmt(keyword, value)
+  }
+
   def varDeclaration(): Stmt = {
     val name = consume(TokenType.Identifier, "Expected variable name.");
 
@@ -118,6 +131,24 @@ class Parser(tokens: Array[Token]):
     val expr = expression();
     consume(TokenType.Semicolon, "Expect ';' after expression.");
     ExpressionStmt(expr)
+  }
+
+  def function(kind: String): FunctionStmt = {
+    val name = consume(TokenType.Identifier, "Expect " + kind + " name.");
+    consume(TokenType.LeftParen, "Expect '(' after " + kind + " name.");
+
+    var params = ArrayBuffer[Token]();
+    if (!check(TokenType.RightParen)) then
+      while
+        if params.length >= 255 then error(peek(), "Can't have more than 255 parameters.");
+        params += consume(TokenType.Identifier, "Expect parameter name.");
+        matches(TokenType.Comma)
+      do ()
+    consume(TokenType.RightParen, "Expect ')' after parameters.");
+
+    consume(TokenType.LeftBrace, "Expect '{' before " + kind + " body.");
+    val body = block();
+    FunctionStmt(name, params.toArray, body);
   }
 
   def block(): Array[Stmt] = {
@@ -232,7 +263,37 @@ class Parser(tokens: Array[Token]):
       return UnaryExpr(operator, right);
     }
 
-    primary()
+    call()
+  }
+
+  def call(): Expr = {
+    var expr = primary();
+
+    breakable {
+      while (true) {
+        if (matches(TokenType.LeftParen)) {
+          expr = finishCall(expr);
+        } else {
+          break
+        }
+      }
+    }
+
+    expr
+  }
+
+  def finishCall(callee: Expr): Expr = {
+    var args = ArrayBuffer[Expr]();
+    if (!check(TokenType.RightParen)) {
+      while
+        if args.length >= 255 then error(peek(), "Can't have more than 255 arguments.");
+        args += expression();
+        matches(TokenType.Comma)
+      do ()
+    }
+
+    val paren = consume(TokenType.RightParen, "Expect ')' after arguments.");
+    CallExpr(callee, args.toArray, paren)
   }
 
   def primary(): Expr = {

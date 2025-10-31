@@ -1,7 +1,18 @@
 package slox;
 
+import scala.collection.mutable.ArrayBuffer
+
 class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
-  var environment = Environment();
+  var globals = Environment();
+  var environment = globals;
+
+  globals.define("clock", new LoxCallable {
+    def arity(): Int = 0;
+    def call(interpreter: Interpreter, args: Array[Any]): Any = {
+      System.currentTimeMillis().toDouble / 1000.0
+    }
+    override def toString(): String = "<native fn>";
+  });
 
   def interpret(stmts: Array[Stmt]): Unit = {
     try
@@ -36,6 +47,12 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
     return null;
   }
 
+  def visitFunction(stmt: FunctionStmt): Any = {
+    val function = LoxFunction(stmt, environment);
+    environment.define(stmt.name.lexeme, function);
+    return null;
+  }
+
   def visitIf(stmt: IfStmt): Any = {
     if isTruthy(evaluate(stmt.condition)) then
       execute(stmt.thenBranch)
@@ -49,6 +66,13 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
     val value = evaluate(stmt.expr);
     println(stringify(value));
     return null;
+  }
+
+  def visitReturn(stmt: ReturnStmt): Any = {
+    var value: Any = null;
+    if stmt.value != null then value = evaluate(stmt.value);
+    
+    throw Return(value)
   }
 
   def visitVar(stmt: VarStmt): Any = {
@@ -129,6 +153,25 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
         isEqual(left.asInstanceOf[Double], right.asInstanceOf[Double])
       }
       case _ => throw new RuntimeError(expr.operator, "unreachable")
+  }
+  def visitCall(expr: CallExpr): Any = {
+    val callee = evaluate(expr.callee);
+
+    var args = ArrayBuffer[Any]();
+    for (arg <- expr.arguments) {
+      args += evaluate(arg);
+    }
+    
+    if !callee.isInstanceOf[LoxCallable] then
+      throw RuntimeError(expr.closingParen, "Can only call functions and classes");
+    val function = callee.asInstanceOf[LoxCallable];
+    if args.length != function.arity() then
+      throw RuntimeError(
+        expr.closingParen,
+        "Expected " + function.arity() + " arguments but got " + args.length + "."
+      );
+
+    function.call(this, args.toArray);
   }
   def visitGrouping(expr: GroupingExpr): Any = evaluate(expr.expr)
   def visitLiteral(expr: LiteralExpr): Any = expr.value
