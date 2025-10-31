@@ -48,6 +48,12 @@ object Lox:
 
     // Stop if there was a syntax error.
     if (hadError) return;
+
+    var resolver = Resolver(interpreter);
+    resolver.resolve(stmts);
+
+    // Stop if there was a resolution error.
+    if (hadError) return;
     
     interpreter.interpret(stmts);
   }

@@ -1,10 +1,12 @@
 package slox;
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.Map
 
 class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
   var globals = Environment();
   var environment = globals;
+  var locals = Map[Expr, Int]();
 
   globals.define("clock", new LoxCallable {
     def arity(): Int = 0;
@@ -24,6 +26,7 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
   }
 
   def execute(stmt: Stmt): Unit = stmt.accept(this)
+  def resolve(expr: Expr, depth: Int): Unit = locals.put(expr, depth);
 
   def executeBlock(stmts: Array[Stmt], env: Environment): Unit = {
     val previous = this.environment;
@@ -96,7 +99,11 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
 
   def visitAssign(expr: AssignExpr): Any = {
     val value = evaluate(expr.value);
-    environment.assign(expr.name, value);
+    val distance = locals.get(expr);
+    distance match
+      case Some(distance) => environment.assignAt(distance, expr.name, value);
+      case None => globals.assign(expr.name, value);
+
     value
   }
 
@@ -198,8 +205,12 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
       case TokenType.Minus => - right.asInstanceOf[Double]
       case _ => throw new RuntimeError(expr.operator, "unreachable")
   }
-  def visitVariable(expr: VariableExpr): Any = {
-    environment.get(expr.name)
+  def visitVariable(expr: VariableExpr): Any = lookupVariable(expr.name, expr);
+  def lookupVariable(name: Token, expr: Expr): Any = {
+    val distance = locals.get(expr);
+    distance match
+      case Some(distance) => environment.getAt(distance, name.lexeme)
+      case None => globals.get(name)
   }
 
   def checkNumberOperand(operator: Token, operand: Any): Unit = {
