@@ -12,6 +12,9 @@ class BinaryExpr(val left: Expr, val operator: Token, val right: Expr) extends E
 class CallExpr(val callee: Expr, val arguments: Array[Expr], val closingParen: Token) extends Expr:
   def accept[R](visitor: ExprVisitor[R]): R = visitor.visitCall(this);
 
+class GetExpr(val obj: Expr, val name: Token) extends Expr:
+  def accept[R](visitor: ExprVisitor[R]): R = visitor.visitGet(this);
+
 class GroupingExpr(val expr: Expr) extends Expr:
   def accept[R](visitor: ExprVisitor[R]): R = visitor.visitGrouping(this);
 
@@ -20,6 +23,12 @@ class LiteralExpr(val value: Any) extends Expr:
 
 class LogicalExpr(val left: Expr, val operator: Token, val right: Expr) extends Expr:
   def accept[R](visitor: ExprVisitor[R]): R = visitor.visitLogical(this);
+
+class SetExpr(val obj: Expr, val name: Token, val value: Expr) extends Expr:
+  def accept[R](visitor: ExprVisitor[R]): R = visitor.visitSet(this);
+
+class ThisExpr(val keyword: Token) extends Expr:
+  def accept[R](visitor: ExprVisitor[R]): R = visitor.visitThis(this);
 
 class UnaryExpr(val operator: Token, val right: Expr) extends Expr:
   def accept[R](visitor: ExprVisitor[R]): R = visitor.visitUnary(this);
@@ -31,9 +40,12 @@ trait ExprVisitor[R]:
   def visitAssign(expr: AssignExpr): R;
   def visitBinary(expr: BinaryExpr): R;
   def visitCall(expr: CallExpr): R;
+  def visitGet(expr: GetExpr): R;
   def visitGrouping(expr: GroupingExpr): R;
   def visitLiteral(expr: LiteralExpr): R;
   def visitLogical(expr: LogicalExpr): R;
+  def visitSet(expr: SetExpr): R;
+  def visitThis(expr: ThisExpr): R;
   def visitUnary(expr: UnaryExpr): R;
   def visitVariable(expr: VariableExpr): R;
 
@@ -42,6 +54,9 @@ sealed abstract class Stmt:
 
 class BlockStmt(val stmts: Array[Stmt]) extends Stmt:
   def accept[R](visitor: StmtVisitor[R]): R = visitor.visitBlock(this);
+
+class ClassStmt(val name: Token, val methods: Array[FunctionStmt]) extends Stmt:
+  def accept[R](visitor: StmtVisitor[R]): R = visitor.visitClass(this);
 
 class FunctionStmt(val name: Token, val params: Array[Token], val body: Array[Stmt]) extends Stmt:
   def accept[R](visitor: StmtVisitor[R]): R = visitor.visitFunction(this);
@@ -66,6 +81,7 @@ class WhileStmt(val condition: Expr, val body: Stmt) extends Stmt:
 
 trait StmtVisitor[R]:
   def visitBlock(stmt: BlockStmt): R;
+  def visitClass(stmt: ClassStmt): R;
   def visitFunction(stmt: FunctionStmt): R;
   def visitReturn(stmt: ReturnStmt): R;
   def visitIf(stmt: IfStmt): R;

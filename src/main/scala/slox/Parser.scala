@@ -21,6 +21,7 @@ class Parser(tokens: Array[Token]):
   
   def declaration(): Stmt = {
     try
+      if matches(TokenType.Class) then return classDeclaration();
       if matches(TokenType.Fun) then return function("function");
       if matches(TokenType.Var) then return varDeclaration();
 
@@ -30,6 +31,19 @@ class Parser(tokens: Array[Token]):
         synchronize();
         return null;
       }
+  }
+
+  def classDeclaration(): Stmt = {
+    val name = consume(TokenType.Identifier, "Expect class name.");
+    consume(TokenType.LeftBrace, "Expect '{' before class body.");
+
+    var methods = ArrayBuffer[FunctionStmt]();
+    while (!check(TokenType.RightBrace) && !isAtEnd()) {
+      methods += function("method");
+    }
+
+    consume(TokenType.RightBrace, "Expect '}' after class body.");
+    ClassStmt(name, methods.toArray)
   }
 
   def statement(): Stmt = {
@@ -172,6 +186,10 @@ class Parser(tokens: Array[Token]):
       if expr.isInstanceOf[VariableExpr] then
         val name = expr.asInstanceOf[VariableExpr].name;
         return AssignExpr(name, value)
+      else if expr.isInstanceOf[GetExpr] then
+        val get = expr.asInstanceOf[GetExpr];
+        return SetExpr(get.obj, get.name, value);
+
 
       error(equals, "Invalid assignment target.");
 
@@ -273,6 +291,9 @@ class Parser(tokens: Array[Token]):
       while (true) {
         if (matches(TokenType.LeftParen)) {
           expr = finishCall(expr);
+        } else if (matches(TokenType.Dot)) {
+          val name = consume(TokenType.Identifier, "Expect property name after '.'.");
+          expr = GetExpr(expr, name)
         } else {
           break
         }
@@ -303,6 +324,9 @@ class Parser(tokens: Array[Token]):
 
     if (matches(TokenType.Number, TokenType.String)) then
       return LiteralExpr(previous().literal);
+
+    if matches(TokenType.This) then
+      return ThisExpr(previous());
 
     if matches(TokenType.Identifier) then
       return VariableExpr(previous());

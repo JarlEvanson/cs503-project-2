@@ -8,6 +8,7 @@ import scala.util.boundary.break
 class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[Unit]:
   val scopes = Stack[Map[String, Boolean]]();
   var currentFunction = FunctionType.None;
+  var currentClass = ClassType.None;
 
   def resolve(stmts: Array[Stmt]): Unit = {
     for (stmt <- stmts) {
@@ -23,6 +24,27 @@ class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[
     beginScope();
     resolve(stmt.stmts);
     endScope();
+  }
+
+  def visitClass(stmt: ClassStmt): Unit = {
+    val enclosingClass = currentClass;
+    currentClass = ClassType.Class;
+
+    declare(stmt.name);
+    define(stmt.name);
+
+    beginScope();
+    scopes.top("this") = true;
+
+    for (method <- stmt.methods) {
+      var declaration = FunctionType.Method;
+      if method.name.lexeme.equals("init") then declaration = FunctionType.Initializer;
+      resolveFunction(method, declaration);
+    }
+
+    endScope();
+    
+    currentClass = enclosingClass;
   }
 
   def visitFunction(stmt: FunctionStmt): Unit = {
@@ -59,8 +81,12 @@ class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[
   }
   def visitPrint(stmt: PrintStmt): Unit = resolve(stmt.expr);
   def visitReturn(stmt: ReturnStmt): Unit = {
-    if currentFunction == FunctionType.None then
+    if (currentFunction == FunctionType.None) {
+      if currentFunction == FunctionType.Initializer then
+        Lox.error(stmt.keyword, "Can't return a value from an initializer.");
+
       Lox.error(stmt.keyword, "Can't return from top-level code.");
+    }
     if stmt.value != null then resolve(stmt.value);
   }
   def visitWhile(stmt: WhileStmt): Unit = {
@@ -76,11 +102,21 @@ class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[
     resolve(expr.callee);
     for (arg <- expr.arguments) resolve(arg);
   }
+  def visitGet(expr: GetExpr): Unit = resolve(expr.obj);
   def visitGrouping(expr: GroupingExpr): Unit = resolve(expr.expr);
   def visitLiteral(expr: LiteralExpr): Unit = {}
   def visitLogical(expr: LogicalExpr): Unit = {
     resolve(expr.left);
     resolve(expr.right);
+  }
+  def visitSet(expr: SetExpr): Unit = {
+    resolve(expr.value);
+    resolve(expr.obj);
+  }
+  def visitThis(expr: ThisExpr): Unit = {
+    if currentClass == ClassType.None then
+      Lox.error(expr.keyword, "Can't use 'this' outside of a class.");
+    resolveLocal(expr, expr.keyword);
   }
   def visitUnary(expr: UnaryExpr): Unit = resolve(expr.right);
 
@@ -120,4 +156,7 @@ class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[
   def endScope(): Unit = scopes.pop();
 
 enum FunctionType:
-  case None, Function
+  case None, Function, Initializer, Method
+
+enum ClassType:
+  case None, Class

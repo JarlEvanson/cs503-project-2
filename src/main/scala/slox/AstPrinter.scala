@@ -6,12 +6,15 @@ class AstPrinter extends ExprVisitor[String]:
   def visitAssign(expr: AssignExpr): String = "(assign " + expr.name + " " + expr.value + ")";
   def visitBinary(expr: BinaryExpr): String = parenthesize(expr.operator.lexeme, expr.left, expr.right);
   def visitCall(expr: CallExpr): String = parenthesize("call", (expr.callee +: expr.arguments)*);
+  def visitGet(expr: GetExpr): String = "(get " + expr.obj + " " + expr.name + ")";
   def visitGrouping(expr: GroupingExpr): String = parenthesize("group", expr.expr);
   def visitLiteral(expr: LiteralExpr): String = {
     if expr.value == null then return "nil";
     expr.value.toString()
   }
   def visitLogical(expr: LogicalExpr): String = parenthesize(expr.operator.lexeme, expr.left, expr.right);
+  def visitSet(expr: SetExpr): String = "(set " + expr.obj + " " + expr.name + " " + expr.value + ")";
+  def visitThis(expr: ThisExpr): String = "(this " + expr.keyword + ")";
   def visitUnary(expr: UnaryExpr): String = parenthesize(expr.operator.lexeme, expr.right);
   def visitVariable(expr: VariableExpr): String = "(lookup " + expr.name + ")";
 

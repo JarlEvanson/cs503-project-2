@@ -45,13 +45,30 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
     return null;
   }
 
+  def visitClass(stmt: ClassStmt): Any = {
+    environment.define(stmt.name.lexeme, null);
+
+    var methods = Map[String, LoxFunction]();
+    for (method <- stmt.methods) {
+      val function = LoxFunction(
+        method,
+        environment,
+        method.name.lexeme.equals("init")
+      );
+      methods(method.name.lexeme) = function;
+    }
+
+    val klass = LoxClass(stmt.name.lexeme, methods);
+    environment.assign(stmt.name, klass);
+  }
+
   def visitExpression(stmt: ExpressionStmt): Any = {
     evaluate(stmt.expr);
     return null;
   }
 
   def visitFunction(stmt: FunctionStmt): Any = {
-    val function = LoxFunction(stmt, environment);
+    val function = LoxFunction(stmt, environment, false);
     environment.define(stmt.name.lexeme, function);
     return null;
   }
@@ -180,6 +197,12 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
 
     function.call(this, args.toArray);
   }
+  def visitGet(expr: GetExpr): Any = {
+    val obj = evaluate(expr.obj);
+    if obj.isInstanceOf[LoxInstance] then return obj.asInstanceOf[LoxInstance].get(expr.name);
+    
+    throw RuntimeError(expr.name, "Only instances have properties.");
+  }
   def visitGrouping(expr: GroupingExpr): Any = evaluate(expr.expr)
   def visitLiteral(expr: LiteralExpr): Any = expr.value
   def visitLogical(expr: LogicalExpr): Any = {
@@ -197,6 +220,17 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
 
     evaluate(expr.right)
   }
+  def visitSet(expr: SetExpr): Any = {
+    val obj = evaluate(expr.obj);
+
+    if !obj.isInstanceOf[LoxInstance] then
+      throw RuntimeError(expr.name, "Only instances have fields.");
+
+    val value = evaluate(expr.value);
+    obj.asInstanceOf[LoxInstance].set(expr.name, value);
+    value
+  }
+  def visitThis(expr: ThisExpr): Any = lookupVariable(expr.keyword, expr);
   def visitUnary(expr: UnaryExpr): Any = {
     val right = evaluate(expr.right);
 
