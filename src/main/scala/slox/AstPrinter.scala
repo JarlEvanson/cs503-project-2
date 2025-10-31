@@ -10,6 +10,7 @@ class AstPrinter extends ExprVisitor[String]:
     if expr.value == null then return "nil";
     expr.value.toString()
   }
+  def visitLogical(expr: LogicalExpr): String = parenthesize(expr.operator.lexeme, expr.left, expr.right);
   def visitUnary(expr: UnaryExpr): String = parenthesize(expr.operator.lexeme, expr.right);
   def visitVariable(expr: VariableExpr): String = "(lookup " + expr.name + ")";
 

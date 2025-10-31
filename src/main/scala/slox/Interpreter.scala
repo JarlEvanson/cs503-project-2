@@ -36,6 +36,15 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
     return null;
   }
 
+  def visitIf(stmt: IfStmt): Any = {
+    if isTruthy(evaluate(stmt.condition)) then
+      execute(stmt.thenBranch)
+    else if stmt.elseBranch != null then
+      execute(stmt.elseBranch)
+
+    null
+  }
+
   def visitPrint(stmt: PrintStmt): Any = {
     val value = evaluate(stmt.expr);
     println(stringify(value));
@@ -48,6 +57,14 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
       case initializer => evaluate(initializer)
 
     environment.define(stmt.name.lexeme, value);
+    return null;
+  }
+
+  def visitWhile(stmt: WhileStmt): Any = {
+    while (isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.body);
+    }
+
     return null;
   }
 
@@ -115,6 +132,21 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
   }
   def visitGrouping(expr: GroupingExpr): Any = evaluate(expr.expr)
   def visitLiteral(expr: LiteralExpr): Any = expr.value
+  def visitLogical(expr: LogicalExpr): Any = {
+    val left = evaluate(expr.left);
+
+    if (expr.operator.kind == TokenType.Or) {
+      if (isTruthy(left)) {
+        return left;
+      }
+    } else {
+      if (!isTruthy(left)) {
+        return left;
+      }
+    }
+
+    evaluate(expr.right)
+  }
   def visitUnary(expr: UnaryExpr): Any = {
     val right = evaluate(expr.right);
 

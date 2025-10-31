@@ -35,8 +35,66 @@ class Parser(tokens: Array[Token]):
       printStatement() 
     else if matches(TokenType.LeftBrace) then
       BlockStmt(block())
+    else if matches(TokenType.If) then
+      ifStatement()
+    else if matches(TokenType.While) then
+      whileStatement()
+    else if matches(TokenType.For) then
+      forStatement()
     else
       expressionStatement()
+  }
+
+  def forStatement(): Stmt = {
+    consume(TokenType.LeftParen, "Expect '(' after 'for'.");
+
+    var initializer: Stmt = null;
+    if matches(TokenType.Semicolon) then
+      initializer = null;
+    else if matches(TokenType.Var) then
+      initializer = varDeclaration();
+    else
+      initializer = expressionStatement();
+
+    var condition: Expr = null;
+    if !check(TokenType.Semicolon) then condition = expression();
+    consume(TokenType.Semicolon, "Expect ';' after loop condition.");
+
+    var increment: Expr = null;
+    if !check(TokenType.RightParen) then increment = expression();
+    consume(TokenType.RightParen, "Expect ')' after for clauses.");
+
+    var body = statement();
+
+    if increment != null then body = BlockStmt(Array(body, ExpressionStmt(increment)));
+    if condition == null then condition = LiteralExpr(true);
+    body = WhileStmt(condition, body);
+
+    if initializer != null then body = BlockStmt(Array(initializer, body));
+
+    body
+  }
+
+  def whileStatement(): Stmt = {
+    consume(TokenType.LeftParen, "Expect '(' after 'while'.");
+    val condition = expression();
+    consume(TokenType.RightParen, "Expect ')' after condition.");
+
+    val body = statement();
+    WhileStmt(condition, body)
+  }
+
+  def ifStatement(): Stmt = {
+    consume(TokenType.LeftParen, "Expect '(' after 'if'.");
+    val condition = expression();
+    consume(TokenType.RightParen, "Expect ')' after if condition.");
+
+    val thenBranch = statement();
+    val elseBranch = matches(TokenType.Else) match
+      case true => statement()
+      case false => null
+
+    IfStmt(condition, thenBranch, elseBranch)
   }
 
   def printStatement(): Stmt = {
@@ -74,7 +132,7 @@ class Parser(tokens: Array[Token]):
   }
 
   def assignment(): Expr = {
-    val expr = equality();
+    val expr = or();
 
     if matches(TokenType.Equal) then
       val equals = previous();
@@ -87,6 +145,30 @@ class Parser(tokens: Array[Token]):
       error(equals, "Invalid assignment target.");
 
     return expr;
+  }
+
+  def or(): Expr = {
+    var expr = and();
+
+    while (matches(TokenType.Or)) {
+      val operator = previous();
+      val right = and();
+      expr = LogicalExpr(expr, operator, right);
+    }
+
+    expr
+  }
+
+  def and(): Expr = {
+    var expr = equality();
+
+    while (matches(TokenType.And)) {
+      val operator = previous();
+      val right = equality();
+      expr = LogicalExpr(expr, operator, right);
+    }
+
+    expr
   }
 
   def equality(): Expr = {
