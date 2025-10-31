@@ -35,6 +35,13 @@ class Parser(tokens: Array[Token]):
 
   def classDeclaration(): Stmt = {
     val name = consume(TokenType.Identifier, "Expect class name.");
+
+    var superclass: VariableExpr = null;
+    if (matches(TokenType.Less)) {
+      consume(TokenType.Identifier, "Expect superclass name.");
+      superclass = VariableExpr(previous());
+    }
+
     consume(TokenType.LeftBrace, "Expect '{' before class body.");
 
     var methods = ArrayBuffer[FunctionStmt]();
@@ -43,7 +50,7 @@ class Parser(tokens: Array[Token]):
     }
 
     consume(TokenType.RightBrace, "Expect '}' after class body.");
-    ClassStmt(name, methods.toArray)
+    ClassStmt(name, superclass, methods.toArray)
   }
 
   def statement(): Stmt = {
@@ -327,6 +334,13 @@ class Parser(tokens: Array[Token]):
 
     if matches(TokenType.This) then
       return ThisExpr(previous());
+
+    if (matches(TokenType.Super)) {
+      val keyword = previous();
+      consume(TokenType.Dot, "Expect '.' after 'super'.");
+      val method = consume(TokenType.Identifier, "Expect superclass method name.");
+      return SuperExpr(keyword, method);
+    }
 
     if matches(TokenType.Identifier) then
       return VariableExpr(previous());

@@ -27,6 +27,9 @@ class LogicalExpr(val left: Expr, val operator: Token, val right: Expr) extends 
 class SetExpr(val obj: Expr, val name: Token, val value: Expr) extends Expr:
   def accept[R](visitor: ExprVisitor[R]): R = visitor.visitSet(this);
 
+class SuperExpr(val keyword: Token, val method: Token) extends Expr:
+  def accept[R](visitor: ExprVisitor[R]): R = visitor.visitSuper(this);
+
 class ThisExpr(val keyword: Token) extends Expr:
   def accept[R](visitor: ExprVisitor[R]): R = visitor.visitThis(this);
 
@@ -45,6 +48,7 @@ trait ExprVisitor[R]:
   def visitLiteral(expr: LiteralExpr): R;
   def visitLogical(expr: LogicalExpr): R;
   def visitSet(expr: SetExpr): R;
+  def visitSuper(expr: SuperExpr): R;
   def visitThis(expr: ThisExpr): R;
   def visitUnary(expr: UnaryExpr): R;
   def visitVariable(expr: VariableExpr): R;
@@ -55,7 +59,7 @@ sealed abstract class Stmt:
 class BlockStmt(val stmts: Array[Stmt]) extends Stmt:
   def accept[R](visitor: StmtVisitor[R]): R = visitor.visitBlock(this);
 
-class ClassStmt(val name: Token, val methods: Array[FunctionStmt]) extends Stmt:
+class ClassStmt(val name: Token, val superclass: VariableExpr, val methods: Array[FunctionStmt]) extends Stmt:
   def accept[R](visitor: StmtVisitor[R]): R = visitor.visitClass(this);
 
 class FunctionStmt(val name: Token, val params: Array[Token], val body: Array[Stmt]) extends Stmt:

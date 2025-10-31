@@ -33,6 +33,20 @@ class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[
     declare(stmt.name);
     define(stmt.name);
 
+    val selfInheritance = stmt.superclass != null
+      && stmt.name.lexeme.equals(stmt.superclass.name.lexeme);
+    if selfInheritance then Lox.error(stmt.superclass.name, "A class can't inherit from itself.");
+
+    if (stmt.superclass != null) {
+      currentClass = ClassType.Subclass;
+      resolve(stmt.superclass);
+    }
+
+    if (stmt.superclass != null) {
+      beginScope();
+      scopes.top("super") = true;
+    }
+
     beginScope();
     scopes.top("this") = true;
 
@@ -44,6 +58,7 @@ class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[
 
     endScope();
     
+    if stmt.superclass != null then endScope();
     currentClass = enclosingClass;
   }
 
@@ -113,6 +128,15 @@ class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[
     resolve(expr.value);
     resolve(expr.obj);
   }
+  def visitSuper(expr: SuperExpr): Unit = {
+    if (currentClass == ClassType.None) {
+      Lox.error(expr.keyword, "Can't use 'super' outside of a class.");
+    } else if (currentClass != ClassType.Subclass) {
+      Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass.");
+    }
+
+    resolveLocal(expr, expr.keyword);
+  }
   def visitThis(expr: ThisExpr): Unit = {
     if currentClass == ClassType.None then
       Lox.error(expr.keyword, "Can't use 'this' outside of a class.");
@@ -159,4 +183,4 @@ enum FunctionType:
   case None, Function, Initializer, Method
 
 enum ClassType:
-  case None, Class
+  case None, Class, Subclass

@@ -2,7 +2,7 @@ package slox;
 
 import scala.collection.mutable.Map
 
-class Environment(private var enclosing: Environment):
+class Environment(var enclosing: Environment):
   def this() = this(null);
 
   var values = Map[String, Any]();

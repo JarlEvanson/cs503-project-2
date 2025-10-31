@@ -46,7 +46,19 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
   }
 
   def visitClass(stmt: ClassStmt): Any = {
+    var superclass: Any = null;
+    if (stmt.superclass != null) {
+      superclass = evaluate(stmt.superclass);
+      if !superclass.isInstanceOf[LoxClass] then
+        throw RuntimeError(stmt.superclass.name, "Superclass must be a class.");
+    }
+
     environment.define(stmt.name.lexeme, null);
+
+    if (stmt.superclass != null) {
+      environment = Environment(environment);
+      environment.define("super", superclass);
+    }
 
     var methods = Map[String, LoxFunction]();
     for (method <- stmt.methods) {
@@ -58,7 +70,14 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
       methods(method.name.lexeme) = function;
     }
 
-    val klass = LoxClass(stmt.name.lexeme, methods);
+    val klass = LoxClass(
+      stmt.name.lexeme,
+      superclass.asInstanceOf[LoxClass],
+      methods
+    );
+    
+    if superclass != null then environment = environment.enclosing;
+
     environment.assign(stmt.name, klass);
   }
 
@@ -229,6 +248,16 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
     val value = evaluate(expr.value);
     obj.asInstanceOf[LoxInstance].set(expr.name, value);
     value
+  }
+  def visitSuper(expr: SuperExpr): Any = {
+    val distance = locals(expr);
+    val superclass = environment.getAt(distance, "super").asInstanceOf[LoxClass];
+    val obj = environment.getAt(distance - 1, "this").asInstanceOf[LoxInstance];
+
+    val method = superclass.findMethod(expr.method.lexeme);
+    if method == null then
+      throw RuntimeError(expr.method, "Undefined property '" + expr.method.lexeme + "'.");
+    method.bind(obj)
   }
   def visitThis(expr: ThisExpr): Any = lookupVariable(expr.keyword, expr);
   def visitUnary(expr: UnaryExpr): Any = {

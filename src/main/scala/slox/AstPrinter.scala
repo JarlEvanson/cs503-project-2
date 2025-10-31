@@ -14,6 +14,7 @@ class AstPrinter extends ExprVisitor[String]:
   }
   def visitLogical(expr: LogicalExpr): String = parenthesize(expr.operator.lexeme, expr.left, expr.right);
   def visitSet(expr: SetExpr): String = "(set " + expr.obj + " " + expr.name + " " + expr.value + ")";
+  def visitSuper(expr: SuperExpr): String = "(super " + expr.method + ")";
   def visitThis(expr: ThisExpr): String = "(this " + expr.keyword + ")";
   def visitUnary(expr: UnaryExpr): String = parenthesize(expr.operator.lexeme, expr.right);
   def visitVariable(expr: VariableExpr): String = "(lookup " + expr.name + ")";

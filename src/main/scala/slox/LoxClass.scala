@@ -2,10 +2,12 @@ package slox;
 
 import scala.collection.mutable.Map
 
-class LoxClass(val name: String, val methods: Map[String, LoxFunction]) extends LoxCallable:
+class LoxClass(val name: String, val superclass: LoxClass, val methods: Map[String, LoxFunction]) extends LoxCallable:
   def findMethod(name: String): LoxFunction = {
     if methods.contains(name) then
       return methods(name);
+
+    if superclass != null then return superclass.findMethod(name);
 
     return null;
   }
