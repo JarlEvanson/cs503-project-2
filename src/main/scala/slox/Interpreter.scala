@@ -1,6 +1,8 @@
 package slox;
 
 class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
+  var environment = Environment();
+
   def interpret(stmts: Array[Stmt]): Unit = {
     try
       for (stmt <- stmts) {
@@ -11,7 +13,23 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
   }
 
   def execute(stmt: Stmt): Unit = stmt.accept(this)
-  def evaluate(expr: Expr): Any = expr.accept(this)
+
+  def executeBlock(stmts: Array[Stmt], env: Environment): Unit = {
+    val previous = this.environment;
+    try
+      this.environment = env;
+
+      for (stmt <- stmts) {
+        execute(stmt);
+      }
+    finally
+      this.environment = previous;
+  }
+
+  def visitBlock(stmt: BlockStmt): Any = {
+    executeBlock(stmt.stmts, Environment(environment));
+    return null;
+  }
 
   def visitExpression(stmt: ExpressionStmt): Any = {
     evaluate(stmt.expr);
@@ -22,6 +40,23 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
     val value = evaluate(stmt.expr);
     println(stringify(value));
     return null;
+  }
+
+  def visitVar(stmt: VarStmt): Any = {
+    val value = stmt.initializer match
+      case null => null
+      case initializer => evaluate(initializer)
+
+    environment.define(stmt.name.lexeme, value);
+    return null;
+  }
+
+  def evaluate(expr: Expr): Any = expr.accept(this)
+
+  def visitAssign(expr: AssignExpr): Any = {
+    val value = evaluate(expr.value);
+    environment.assign(expr.name, value);
+    value
   }
 
   def visitBinary(expr: BinaryExpr): Any = {
@@ -87,6 +122,9 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
       case TokenType.Bang => !isTruthy(right)
       case TokenType.Minus => - right.asInstanceOf[Double]
       case _ => throw new RuntimeError(expr.operator, "unreachable")
+  }
+  def visitVariable(expr: VariableExpr): Any = {
+    environment.get(expr.name)
   }
 
   def checkNumberOperand(operator: Token, operand: Any): Unit = {

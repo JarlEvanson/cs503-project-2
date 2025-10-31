@@ -3,6 +3,7 @@ package slox;
 class AstPrinter extends ExprVisitor[String]:
   def printExpr(expr: Expr): String = expr.accept(this)
 
+  def visitAssign(expr: AssignExpr): String = "(assign " + expr.name + " " + expr.value + ")";
   def visitBinary(expr: BinaryExpr): String = parenthesize(expr.operator.lexeme, expr.left, expr.right);
   def visitGrouping(expr: GroupingExpr): String = parenthesize("group", expr.expr);
   def visitLiteral(expr: LiteralExpr): String = {
@@ -10,6 +11,7 @@ class AstPrinter extends ExprVisitor[String]:
     expr.value.toString()
   }
   def visitUnary(expr: UnaryExpr): String = parenthesize(expr.operator.lexeme, expr.right);
+  def visitVariable(expr: VariableExpr): String = "(lookup " + expr.name + ")";
 
 
   def parenthesize(name: String, exprs: Expr*): String = {

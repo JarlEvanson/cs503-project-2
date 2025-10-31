@@ -10,17 +10,31 @@ class Parser(tokens: Array[Token]):
   def parse(): Array[Stmt] = {
     var statements = ArrayBuffer[Stmt]();
     while (!isAtEnd()) {
-      statements += statement();
+      statements += declaration();
     }
 
     statements.toArray
   }
 
-  def expression(): Expr = equality();
+  def expression(): Expr = assignment();
   
+  def declaration(): Stmt = {
+    try
+      if matches(TokenType.Var) then return varDeclaration();
+
+      statement()
+    catch
+      case e: ParseError => {
+        synchronize();
+        return null;
+      }
+  }
+
   def statement(): Stmt = {
     if matches(TokenType.Print) then
       printStatement() 
+    else if matches(TokenType.LeftBrace) then
+      BlockStmt(block())
     else
       expressionStatement()
   }
@@ -31,10 +45,48 @@ class Parser(tokens: Array[Token]):
     PrintStmt(value)
   }
 
+  def varDeclaration(): Stmt = {
+    val name = consume(TokenType.Identifier, "Expected variable name.");
+
+    val initializer = matches(TokenType.Equal) match
+      case true => expression()
+      case false => null
+
+    consume(TokenType.Semicolon, "Expect ';' after variable declaration.");
+    VarStmt(name, initializer)
+  }
+
   def expressionStatement(): Stmt = {
     val expr = expression();
     consume(TokenType.Semicolon, "Expect ';' after expression.");
     ExpressionStmt(expr)
+  }
+
+  def block(): Array[Stmt] = {
+    var stmts = ArrayBuffer[Stmt]();
+
+    while (!check(TokenType.RightBrace) && !isAtEnd()) {
+      stmts += declaration();
+    }
+
+    consume(TokenType.RightBrace, "Expect '}' after block.");
+    stmts.toArray
+  }
+
+  def assignment(): Expr = {
+    val expr = equality();
+
+    if matches(TokenType.Equal) then
+      val equals = previous();
+      val value = assignment();
+
+      if expr.isInstanceOf[VariableExpr] then
+        val name = expr.asInstanceOf[VariableExpr].name;
+        return AssignExpr(name, value)
+
+      error(equals, "Invalid assignment target.");
+
+    return expr;
   }
 
   def equality(): Expr = {
@@ -108,6 +160,9 @@ class Parser(tokens: Array[Token]):
 
     if (matches(TokenType.Number, TokenType.String)) then
       return LiteralExpr(previous().literal);
+
+    if matches(TokenType.Identifier) then
+      return VariableExpr(previous());
 
     if (matches(TokenType.LeftParen)) {
       val expr = expression();
