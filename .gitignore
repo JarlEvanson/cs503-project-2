@@ -1,0 +1,5 @@
+# Ignore project/ folder
+/project
+
+# Ignore target/ folder
+/target
