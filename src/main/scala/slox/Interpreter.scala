@@ -188,12 +188,10 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
         left.asInstanceOf[Double] <= right.asInstanceOf[Double]
       }
       case TokenType.BangEqual => {
-        checkNumberOperands(expr.operator, left, right);
-        !isEqual(left.asInstanceOf[Double], right.asInstanceOf[Double])
+        !isEqual(left, right)
       }
       case TokenType.EqualEqual => {
-        checkNumberOperands(expr.operator, left, right);
-        isEqual(left.asInstanceOf[Double], right.asInstanceOf[Double])
+        isEqual(left, right)
       }
       case _ => throw new RuntimeError(expr.operator, "unreachable")
   }
@@ -206,7 +204,7 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
     }
     
     if !callee.isInstanceOf[LoxCallable] then
-      throw RuntimeError(expr.closingParen, "Can only call functions and classes");
+      throw RuntimeError(expr.closingParen, "Can only call functions and classes.");
     val function = callee.asInstanceOf[LoxCallable];
     if args.length != function.arity() then
       throw RuntimeError(
@@ -265,7 +263,10 @@ class Interpreter extends StmtVisitor[Any] with ExprVisitor[Any]:
 
     expr.operator.kind match
       case TokenType.Bang => !isTruthy(right)
-      case TokenType.Minus => - right.asInstanceOf[Double]
+      case TokenType.Minus => {
+        checkNumberOperand(expr.operator, right);
+        -right.asInstanceOf[Double]
+      }
       case _ => throw new RuntimeError(expr.operator, "unreachable")
   }
   def visitVariable(expr: VariableExpr): Any = lookupVariable(expr.name, expr);

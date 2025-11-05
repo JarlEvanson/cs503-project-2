@@ -97,12 +97,14 @@ class Resolver(interpreter: Interpreter) extends ExprVisitor[Unit], StmtVisitor[
   def visitPrint(stmt: PrintStmt): Unit = resolve(stmt.expr);
   def visitReturn(stmt: ReturnStmt): Unit = {
     if (currentFunction == FunctionType.None) {
+            Lox.error(stmt.keyword, "Can't return from top-level code.");
+    }
+    if (stmt.value != null) {
       if currentFunction == FunctionType.Initializer then
         Lox.error(stmt.keyword, "Can't return a value from an initializer.");
 
-      Lox.error(stmt.keyword, "Can't return from top-level code.");
+      resolve(stmt.value);
     }
-    if stmt.value != null then resolve(stmt.value);
   }
   def visitWhile(stmt: WhileStmt): Unit = {
     resolve(stmt.condition);

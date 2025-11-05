@@ -138,7 +138,7 @@ class Parser(tokens: Array[Token]):
   }
 
   def varDeclaration(): Stmt = {
-    val name = consume(TokenType.Identifier, "Expected variable name.");
+    val name = consume(TokenType.Identifier, "Expect variable name.");
 
     val initializer = matches(TokenType.Equal) match
       case true => expression()

@@ -4,20 +4,20 @@ import scala.io.Source
 import scala.io.StdIn
 import scala.util.control.Breaks._
 
-object Lox:
-  var hadError = false;
-  var hadRuntimeError = false;
-  var interpreter = Interpreter();
-
   @main def main(args: String*): Unit = {
     if (args.length > 1)
       println("Usage: jlox [script]");
       System.exit(64);
     else if (args.length == 1)
-      runFile(args(0));
+      Lox.runFile(args(0));
     else
-      runPrompt();
+      Lox.runPrompt();
   }
+
+object Lox:
+  var hadError = false;
+  var hadRuntimeError = false;
+  var interpreter = Interpreter();
 
   def runFile(path: String): Unit = {
     val source = Source.fromFile(path, "utf-8");
