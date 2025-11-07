@@ -1,0 +1,3 @@
+// support printing
+
+print nil; // expect: nil

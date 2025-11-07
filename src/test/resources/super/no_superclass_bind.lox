@@ -1,0 +1,9 @@
+// check that the class has a superclass when using a field
+
+class Base {
+  foo() {
+    super.doesNotExist; // expect: Error at 'super': Can't use 'super' in a class with no superclass.
+  }
+}
+
+Base().foo();

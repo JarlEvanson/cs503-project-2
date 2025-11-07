@@ -1,0 +1,4 @@
+// error on unterminated strings
+
+// expect: Unterminated string.
+"this string has no close quote

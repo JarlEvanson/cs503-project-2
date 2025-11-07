@@ -1,0 +1,10 @@
+// require immediate usage
+
+class A {}
+
+class B < A {
+  method() {
+    // expect: Error at ';': Expect '.' after 'super'.
+    super;
+  }
+}

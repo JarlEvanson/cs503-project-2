@@ -1,0 +1,16 @@
+// check superclass method argument count
+
+class Base {
+  foo(a, b) {
+    print "Base.foo(" + a + ", " + b + ")";
+  }
+}
+
+class Derived < Base {
+  foo() {
+    super.foo(1); // expect: Expected 2 arguments but got 1.
+    // expect: [line
+  }
+}
+
+Derived().foo();

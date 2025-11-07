@@ -1,0 +1,4 @@
+// take a single argument
+
+print; // expect: Expect expression
+print 1 2; // expect: Expected ';' after value

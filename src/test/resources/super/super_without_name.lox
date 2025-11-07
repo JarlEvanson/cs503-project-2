@@ -1,0 +1,9 @@
+// require field or method name to be used
+
+class A {}
+
+class B < A {
+  method() {
+    super.; // expect: Error at ';': Expect superclass method name.
+  }
+}
