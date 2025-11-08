@@ -272,9 +272,17 @@
 [info]   - return_inside
 [info]   - syntax
 [info]   - var_in_body
-[info] Run completed in 626 milliseconds.
-[info] Total number of tests run: 240
+[info] General
+[info] - illegal_expressions
+[info] - print
+[info] - globals
+[info] - print_var
+[info] - untyped
+[info] - truthy
+[info] - 21_fibonacci
+[info] Run completed in 619 milliseconds.
+[info] Total number of tests run: 247
 [info] Suites: completed 1, aborted 0
-[info] Tests: succeeded 240, failed 0, canceled 0, ignored 0, pending 0
+[info] Tests: succeeded 247, failed 0, canceled 0, ignored 0, pending 0
 [info] All tests passed.
-[success] Total time: 1 s, completed Nov 7, 2025, 10:11:01 PM
+[success] Total time: 1 s, completed Nov 7, 2025, 11:09:21 PM
