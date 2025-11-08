@@ -1,0 +1,4 @@
+var monday = "tuesday";
+
+if (monday) print "Yes";
+if (monday) var beverage = "espresso";

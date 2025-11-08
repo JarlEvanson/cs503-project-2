@@ -1,3 +1,0 @@
-// error when at the top level
-
-this; // expect: Error at 'this': Can't use 'this' outside of a class.

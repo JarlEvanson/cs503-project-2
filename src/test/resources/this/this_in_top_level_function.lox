@@ -1,5 +1,0 @@
-// when used in top level functions
-
-fun foo() {
-  this; // expect: Error at 'this': Can't use 'this' outside of a class.
-}

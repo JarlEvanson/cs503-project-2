@@ -1,4 +1,0 @@
-// not support trailing decimal points at end
-
-// expect: Error at end: Expect property name after '.'.
-123.

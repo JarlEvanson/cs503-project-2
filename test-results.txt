@@ -1,0 +1,280 @@
+[info] welcome to sbt 1.11.6 (N/A Java 21.0.8)
+[info] loading settings for project project-2-build from plugins.sbt...
+[info] loading project definition from /home/jarl/projects/school/cs503/project-2/project
+[info] loading settings for project project-2 from build.sbt...
+[info] set current project to slox (in build file:/home/jarl/projects/school/cs503/project-2/)
+[info] SLoxSpec:
+[info] Crafting Interpreters
+[info]   assignment
+[info]   - associativity
+[info]   - global
+[info]   - grouping
+[info]   - infix_operator
+[info]   - local
+[info]   - prefix_operator
+[info]   - syntax
+[info]   - to_this
+[info]   - undefined
+[info]   basic
+[info]   - empty_file
+[info]   - precedence
+[info]   - unexpected_character
+[info]   block
+[info]   - empty
+[info]   - scope
+[info]   bool
+[info]   - equality
+[info]   - not
+[info]   call
+[info]   - bool
+[info]   - nil
+[info]   - num
+[info]   - object
+[info]   - string
+[info]   class
+[info]   - empty
+[info]   - inherit_self
+[info]   - inherited_method
+[info]   - local_inherit_other
+[info]   - local_inherit_self
+[info]   - local_reference_self
+[info]   - reference_self
+[info]   closure
+[info]   - assign_to_closure
+[info]   - assign_to_shadowed_later
+[info]   - close_over_function_parameter
+[info]   - close_over_later_variable
+[info]   - close_over_method_parameter
+[info]   - closed_closure_in_function
+[info]   - nested_closure
+[info]   - open_closure_in_function
+[info]   - reference_closure_multiple_times
+[info]   - reuse_closure_slot
+[info]   - shadow_closure_with_local
+[info]   - unused_closure
+[info]   - unused_later_closure
+[info]   comments
+[info]   - line_at_eof
+[info]   - only_line_comment
+[info]   - only_line_comment_and_line
+[info]   - unicode
+[info]   constructor
+[info]   - arguments
+[info]   - call_init_early_return
+[info]   - call_init_explicitly
+[info]   - default
+[info]   - default_arguments
+[info]   - early_return
+[info]   - extra_arguments
+[info]   - init_not_method
+[info]   - missing_arguments
+[info]   - return_in_nested_function
+[info]   - return_value
+[info]   field
+[info]   - call_function_field
+[info]   - call_nonfunction_field
+[info]   - get_and_set_method
+[info]   - get_on_bool
+[info]   - get_on_class
+[info]   - get_on_function
+[info]   - get_on_nil
+[info]   - get_on_num
+[info]   - get_on_string
+[info]   - many
+[info]   - method
+[info]   - method_binds_this
+[info]   - on_instance
+[info]   - set_evaluation_order
+[info]   - set_on_bool
+[info]   - set_on_class
+[info]   - set_on_function
+[info]   - set_on_nil
+[info]   - set_on_num
+[info]   - set_on_string
+[info]   - undefined
+[info]   for
+[info]   - class_in_body
+[info]   - closure_in_body
+[info]   - fun_in_body
+[info]   - return_closure
+[info]   - return_inside
+[info]   - scope
+[info]   - statement_condition
+[info]   - statement_increment
+[info]   - statement_initializer
+[info]   - syntax
+[info]   - var_in_body
+[info]   function
+[info]   - body_must_be_block
+[info]   - empty_body
+[info]   - extra_arguments
+[info]   - local_mutual_recursion
+[info]   - local_recursion
+[info]   - missing_arguments
+[info]   - missing_comma_in_parameters
+[info]   - mutual_recursion
+[info]   - nested_call_with_arguments
+[info]   - parameters
+[info]   - print
+[info]   - recursion
+[info]   - too_many_arguments
+[info]   - too_many_parameters
+[info]   if
+[info]   - class_in_else
+[info]   - class_in_then
+[info]   - dangling_else
+[info]   - else
+[info]   - fun_in_else
+[info]   - fun_in_then
+[info]   - if
+[info]   - truth
+[info]   - var_in_else
+[info]   - var_in_then
+[info]   inheritance
+[info]   - constructor
+[info]   - inherit_from_function
+[info]   - inherit_from_nil
+[info]   - inherit_from_number
+[info]   - inherit_methods
+[info]   - parenthesized_superclass
+[info]   - set_fields_from_base_class
+[info]   logical_operator
+[info]   - and
+[info]   - and_truth
+[info]   - or
+[info]   - or_truth
+[info]   method
+[info]   - arity
+[info]   - empty_block
+[info]   - extra_arguments
+[info]   - missing_arguments
+[info]   - not_found
+[info]   - print_bound_method
+[info]   - refer_to_name
+[info]   - too_many_arguments
+[info]   - too_many_parameters
+[info]   nil
+[info]   - literal
+[info]   number
+[info]   - decimal_point_at_eof
+[info]   - leading_dot
+[info]   - literals
+[info]   - nan_equality
+[info]   - trailing_dot
+[info]   operator
+[info]   - add
+[info]   - add_bool_nil
+[info]   - add_bool_num
+[info]   - add_bool_string
+[info]   - add_nil_nil
+[info]   - add_num_nil
+[info]   - add_string_nil
+[info]   - comparison
+[info]   - divide
+[info]   - divide_nonnum_num
+[info]   - divide_num_nonnum
+[info]   - equals
+[info]   - equals_class
+[info]   - equals_method
+[info]   - greater_nonnum_num
+[info]   - greater_num_nonnum
+[info]   - greater_or_equal_nonnum_num
+[info]   - greater_or_equal_num_nonnum
+[info]   - less_nonnum_num
+[info]   - less_num_nonnum
+[info]   - less_or_equal_nonnum_num
+[info]   - less_or_equal_num_nonnum
+[info]   - multiply
+[info]   - multiply_nonnum_num
+[info]   - multiply_num_nonnum
+[info]   - negate
+[info]   - negate_nonnum
+[info]   - not
+[info]   - not_class
+[info]   - not_equals
+[info]   - subtract
+[info]   - subtract_nonnum_num
+[info]   - subtract_num_nonnum
+[info]   print
+[info]   - missing_argument
+[info]   regression
+[info]   - 394
+[info]   - 40
+[info]   return
+[info]   - after_else
+[info]   - after_if
+[info]   - after_while
+[info]   - at_top_level
+[info]   - in_function
+[info]   - in_method
+[info]   - return_nil_if_no_value
+[info]   string
+[info]   - error_after_multiline
+[info]   - literals
+[info]   - multiline
+[info]   - unterminated
+[info]   super
+[info]   - bound_method
+[info]   - call_other_method
+[info]   - call_same_method
+[info]   - closure
+[info]   - constructor
+[info]   - extra_arguments
+[info]   - indirectly_inherited
+[info]   - missing_arguments
+[info]   - no_superclass_bind
+[info]   - no_superclass_call
+[info]   - no_superclass_method
+[info]   - parenthesized
+[info]   - reassign_superclass
+[info]   - super_at_top_level
+[info]   - super_in_closure_in_inherited_method
+[info]   - super_in_inherited_method
+[info]   - super_in_top_level_function
+[info]   - super_without_dot
+[info]   - super_without_name
+[info]   - this_in_superclass_method
+[info]   this
+[info]   - closure
+[info]   - nested_class
+[info]   - nested_closure
+[info]   - this_at_top_level
+[info]   - this_in_method
+[info]   - this_in_top_level_function
+[info]   variable
+[info]   - collide_with_parameter
+[info]   - duplicate_local
+[info]   - duplicate_parameter
+[info]   - early_bound
+[info]   - in_middle_of_block
+[info]   - in_nested_block
+[info]   - local_from_method
+[info]   - redeclare_global
+[info]   - redefine_global
+[info]   - scope_reuse_in_different_blocks
+[info]   - shadow_and_local
+[info]   - shadow_global
+[info]   - shadow_local
+[info]   - undefined_global
+[info]   - undefined_local
+[info]   - uninitialized
+[info]   - unreached_undefined
+[info]   - use_false_as_var
+[info]   - use_global_in_initializer
+[info]   - use_local_in_initializer
+[info]   - use_nil_as_var
+[info]   - use_this_as_var
+[info]   while
+[info]   - class_in_body
+[info]   - closure_in_body
+[info]   - fun_in_body
+[info]   - return_closure
+[info]   - return_inside
+[info]   - syntax
+[info]   - var_in_body
+[info] Run completed in 626 milliseconds.
+[info] Total number of tests run: 240
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 240, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 1 s, completed Nov 7, 2025, 10:11:01 PM

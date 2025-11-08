@@ -1,4 +1,0 @@
-// not be supported at top level
-
-super.foo("bar"); // expect: Error at 'super': Can't use 'super' outside of a class.
-super.foo; // expect: Error at 'super': Can't use 'super' outside of a class.

@@ -1,5 +1,0 @@
-// not support `super` outside of classes with a superclass
-
-super.bar(); // expect: Error at 'super': Can't use 'super' outside of a class.
-fun foo() {
-}

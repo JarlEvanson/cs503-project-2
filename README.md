@@ -1,74 +1,37 @@
-# Project 1 - Lisp
+# Project 2 - Lox
 
 ## Project Description
 
-The project provides an implementation of a Lisp interpreter.
+The project provides an implementation of a Lox interpreter.
 
 ## Organization
 
-The code is organized into a source directory (`src/`) and a header directory
-(`include/`). Each component or activity required by the interpreter is located
-in its own set of a `c` source file and a `c` header file and have the same
-names.
+The code is organized into a single directory (`src/main/scala/slox`) with a
+very similar file structure as given by the `Crafting Interpreters Part II`
+book.
 
-For instance, `src/sexpr.c` and `src/sexpr.h` contain basic functionality to
-initialize and manipulate the `SExpr` structure (the basic unit of the
-interpreter). 
+The test runner is located at `src/test/scala/test.scala` and runs integration
+tests located in `src/test/resources`. The integration tests run a lox file and
+compare the output to its corresponding `.output` file.
 
-The entry point of the unit testing and integration testing programs are
-located in `src/test.c`, while the entry point of the fuzzing programs are
-located in `src/fuzz.c`.
-
-The `fuzz/` directory contains the initial seeds for a fuzzing run, and will
-contain a temporary directory when fuzzing.
-
-The `test/` directory contains various assets used for integration testing of
-the `lisp` program.
-
-The `submissions/` directory will contain assets related to the submission of
-various sprints.
-
-The `build/` directory will contain the object files and linked programs
-produced by the build process.
+The tests located in `src/test/resources/crafting-interpreters/` are direct
+ports of the official `jlox` test suite.
 
 ## Build Process
 
 ### Prerequisites
 
-In order to build `lisp`, the following programs must be installed:
-`GNU make` and `gcc`.
+In order to run `slox` and its tests, the following programs must be installed:
+`sbt 1.11.6` and `scala 3.7.3`.
 
-The prerequisites to build the unit testing and integration testing programs
-are identical to the ones required to build `lisp`.
+To best way to install these programs is to use `nix develop` with Nix
+installed.
 
-In order to fuzz `lisp`, the following additional programs must be installed:
-`afl++` and `tmux`.
+### Running and Testing
 
-### Building
+To run `slox`, run the command `sbt`. This will bring up a `sbt` server that
+enables fast compilation with the `compile` command and fast execution with the
+`run` command.
 
-To build `lisp`, run:
-```bash
-make
-```
-
-To build the unit testing and integration testing programs, run:
-```bash
-make build-test
-```
-
-To build the fuzzing programs, run:
-```bash
-make build-fuzz
-```
-
-## Testing
-
-To run the unit and integration tests, run:
-```bash
-make test
-```
-
-To fuzz the interpreter, run:
-```bash
-make fuzz
-```
+To run the REPL, run `stb run`
+To run a file, run `sbt "run file"
